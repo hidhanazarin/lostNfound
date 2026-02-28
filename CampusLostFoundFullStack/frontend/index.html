@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus Lost & Found</title>
+<style>
+body {
+    font-family: Arial;
+    background: linear-gradient(135deg, #4e73df, #1cc88a);
+    margin: 0;
+    padding: 20px;
+}
+h1, h2 {
+    text-align: center;
+    color: white;
+}
+.form, .section {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 15px auto;
+    width: 50%;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+input, textarea, select {
+    width: 100%;
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+button {
+    background: #4e73df;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+img {
+    max-width: 150px;
+    margin-top: 10px;
+    border-radius: 6px;
+}
+.card {
+    background: #f9f9f9;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.card button {
+    margin-top: 10px;
+    background: #e74a3b;
+}
+.filter-container {
+    text-align: center;
+    margin: 20px auto;
+    width: 50%;
+}
+</style>
+</head>
+<body>
+
+<h1>Campus Lost & Found</h1>
+
+<div class="form">
+    <h2>Add Item</h2>
+    <form id="itemForm">
+        <select id="type" required>
+            <option value="">Select Type</option>
+            <option value="Lost">Lost</option>
+            <option value="Found">Found</option>
+        </select>
+        <input type="text" id="title" placeholder="Title" required>
+        <input type="text" id="location" placeholder="Location" required>
+        <input type="text" id="contact" placeholder="Contact Info" required>
+        <textarea id="description" placeholder="Description" required></textarea>
+        <select id="category" required>
+            <option value="">Select Category</option>
+            <option value="Books">Books</option>
+            <option value="Bags">Bags</option>
+            <option value="Electronics">Electronics</option>
+            <option value="ID Card">ID Card</option>
+            <option value="Other">Other</option>
+        </select>
+        <input type="file" id="image" accept="image/*">
+        <button type="submit">Add Item</button>
+    </form>
+</div>
+
+<div class="filter-container">
+    <label for="categoryFilter" style="color:white;font-weight:bold;">Filter by Category:</label>
+    <select id="categoryFilter">
+        <option value="">All Categories</option>
+        <option value="Books">Books</option>
+        <option value="Bags">Bags</option>
+        <option value="Electronics">Electronics</option>
+        <option value="ID Card">ID Card</option>
+        <option value="Other">Other</option>
+    </select>
+</div>
+
+<div class="section">
+    <h2>Lost Items</h2>
+    <div id="lostItems"></div>
+</div>
+
+<div class="section">
+    <h2>Found Items</h2>
+    <div id="foundItems"></div>
+</div>
+
+<script>
+const API = "http://127.0.0.1:8000";
+
+async function addItem(e) {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("type", document.getElementById("type").value);
+    formData.append("title", document.getElementById("title").value);
+    formData.append("location", document.getElementById("location").value);
+    formData.append("contact", document.getElementById("contact").value);
+    formData.append("description", document.getElementById("description").value);
+    formData.append("category", document.getElementById("category").value);
+
+    const fileInput = document.getElementById("image");
+    if (fileInput.files.length > 0) {
+        formData.append("image", fileInput.files[0]);
+    }
+
+    await fetch(`${API}/add-item`, { method: "POST", body: formData });
+    document.getElementById("itemForm").reset();
+    fetchItems();
+}
+
+async function fetchItems() {
+    const res = await fetch(`${API}/items`);
+    const items = await res.json();
+    displayItems(items);
+}
+
+function displayItems(items) {
+    const selectedCategory = document.getElementById("categoryFilter").value;
+
+    const lostContainer = document.getElementById("lostItems");
+    const foundContainer = document.getElementById("foundItems");
+
+    lostContainer.innerHTML = "";
+    foundContainer.innerHTML = "";
+
+    const filtered = selectedCategory ? items.filter(i => i.category === selectedCategory) : items;
+
+    filtered.forEach(item => {
+        const html = `
+            <div class="card">
+                <h3>${item.title}</h3>
+                <p><strong>Type:</strong> ${item.type}</p>
+                <p>${item.description}</p>
+                <p><strong>Category:</strong> ${item.category}</p>
+                <p><strong>Location:</strong> ${item.location}</p>
+                <p><strong>Contact:</strong> ${item.contact}</p>
+                ${item.image_url ? `<img src="${item.image_url}" alt="Item Image">` : ""}
+                <button onclick="claimItem('${item.id}')">Claim / Delete</button>
+            </div>
+        `;
+        if(item.type === "Lost") lostContainer.innerHTML += html;
+        else if(item.type === "Found") foundContainer.innerHTML += html;
+    });
+}
+
+async function claimItem(id) {
+    await fetch(`${API}/delete-item/${id}`, { method: "DELETE" });
+    fetchItems();
+}
+
+document.getElementById("itemForm").addEventListener("submit", addItem);
+document.getElementById("categoryFilter").addEventListener("change", fetchItems);
+
+fetchItems();
+</script>
+
+</body>
+</html>

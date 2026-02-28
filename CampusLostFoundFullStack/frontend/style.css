@@ -1,0 +1,159 @@
+/* Overall body style with smooth gradient background and nice font */
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #4e73df, #1cc88a);
+  margin: 0;
+  padding: 20px;
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* Container for form and items for max width and centered */
+.container {
+  width: 100%;
+  max-width: 600px;
+}
+
+/* Page heading style */
+h1 {
+  text-align: center;
+  color: white;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  user-select: none;
+}
+
+/* Shared styles for form and cards */
+.form,
+.card {
+  background: white;
+  padding: 20px 25px;
+  border-radius: 12px;
+  margin: 15px auto;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  box-sizing: border-box;
+  transition: box-shadow 0.3s ease;
+}
+
+/* Subtle hover effect on cards for interactivity */
+.card:hover {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* Inputs, textarea, selects with consistent style */
+input,
+textarea,
+select {
+  width: 100%;
+  margin: 8px 0 15px 0;
+  padding: 10px 12px;
+  border: 1.8px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+  box-sizing: border-box;
+}
+
+/* Focus state for inputs */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #1cc88a;
+  box-shadow: 0 0 8px rgba(28, 200, 138, 0.5);
+  outline: none;
+}
+
+/* Textarea resize */
+textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+/* File input margin */
+input[type="file"] {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+/* Button styling */
+button {
+  background: #4e73df;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+  display: inline-block;
+  user-select: none;
+}
+
+/* Button hover effect */
+button:hover {
+  background: #3b59d1;
+  box-shadow: 0 4px 12px rgba(59, 89, 209, 0.6);
+}
+
+/* Images inside cards: responsive and neat */
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  object-fit: contain;
+}
+
+/* Card text spacing */
+.card h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.card p {
+  margin: 0.3rem 0;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* Category bold */
+.card strong {
+  color: #1cc88a;
+}
+
+/* Responsive tweaks for smaller screens */
+@media (max-width: 640px) {
+  body {
+    padding: 15px;
+    align-items: stretch;
+  }
+
+  .container {
+    max-width: 100%;
+  }
+
+  .form,
+  .card {
+    padding: 15px 20px;
+    margin: 10px auto;
+  }
+
+  button {
+    width: 100%;
+    padding: 14px;
+  }
+}
