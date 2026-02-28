@@ -22,7 +22,7 @@ app.add_middleware(
 )
 
 # Serve static files
-STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # Serve index.html at root
@@ -81,3 +81,4 @@ def delete_item(item_id: str):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
