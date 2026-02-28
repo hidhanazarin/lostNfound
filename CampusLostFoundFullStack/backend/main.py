@@ -9,28 +9,43 @@ import os
 
 app = FastAPI()
 
-# Fake in-memory database
+# ==============================
+# In-memory database (temporary)
+# ==============================
 items_db: List[dict] = []
 
-# CORS middleware
+# ==============================
+# CORS Configuration
+# ==============================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # You can restrict this later
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Serve static files
-STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend")
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+# ==============================
+# Static Files Setup
+# frontend is sibling of backend
+# ==============================
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+
+# Mount static files
+app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
 # Serve index.html at root
 @app.get("/")
-async def home():
-    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+async def serve_home():
+    return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
 
-# POST endpoint to add an item
+
+# ==============================
+# API Endpoints
+# ==============================
+
+# Add item
 @app.post("/add-item")
 async def add_item(
     type: str = Form(...),
@@ -42,6 +57,7 @@ async def add_item(
     image: UploadFile = File(None)
 ):
     image_url = None
+
     if image:
         file_id = str(uuid.uuid4())
         image_url = f"/fake-images/{file_id}_{image.filename}"
@@ -59,26 +75,53 @@ async def add_item(
     }
 
     items_db.append(item)
-    return {"message": "Item added successfully", "item": item}
 
-# GET endpoint with optional filter
+    return {
+        "message": "Item added successfully",
+        "item": item
+    }
+
+
+# Get items (optional filter by type)
 @app.get("/items")
 def get_items(item_type: Optional[str] = Query(None)):
     filtered_items = items_db
+
     if item_type:
-        filtered_items = [item for item in items_db if item["type"].lower() == item_type.lower()]
-    sorted_items = sorted(filtered_items, key=lambda x: x["created_at"], reverse=True)
+        filtered_items = [
+            item for item in items_db
+            if item["type"].lower() == item_type.lower()
+        ]
+
+    sorted_items = sorted(
+        filtered_items,
+        key=lambda x: x["created_at"],
+        reverse=True
+    )
+
     return sorted_items
 
-# DELETE endpoint
+
+# Delete item
 @app.delete("/delete-item/{item_id}")
 def delete_item(item_id: str):
     global items_db
-    items_db = [item for item in items_db if item["id"] != item_id]
-    return {"message": "Item deleted"}
+    items_db = [
+        item for item in items_db
+        if item["id"] != item_id
+    ]
 
-# Run server locally
+    return {"message": "Item deleted successfully"}
+
+
+# ==============================
+# Local Development Run
+# ==============================
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
-
+    uvicorn.run(
+        "backend.main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True
+    )
